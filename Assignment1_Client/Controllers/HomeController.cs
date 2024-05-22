@@ -58,10 +58,14 @@ namespace Assignment1_Client.Controllers
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true).Build();
 
+            String aaa = config["Credentials:Email"];
+
             Staff admin = new Staff
             {
                 Name = config["Credentials:Email"],
                 Password = config["Credentials:Password"],
+                Role = 1,
+                StaffId = 100
 
             };
 
@@ -74,7 +78,7 @@ namespace Assignment1_Client.Controllers
                 HttpContext.Session.SetInt32("USERID", account.StaffId);
                 HttpContext.Session.SetString("USERNAME", account.Name);
                 HttpContext.Session.SetString("ROLE", account.Role == 1 ? "Admin": "Customer");
-                if (account.Name == "admin")
+                if (account.Role == 1)
                     return RedirectToAction("Index", "Staffs");
                 else
                     return RedirectToAction("Profile", "Staffs");
@@ -110,13 +114,13 @@ namespace Assignment1_Client.Controllers
             if (memberRequest.Name.Equals("admin") ||
                 (staff != null && staff.StaffId != 0))
             {
-                ViewData["ErrorMessage"] = "Email already exists.";
+                ViewData["ErrorMessage"] = "Name already exists.";
                 return View("Register");
             }
 
             await ApiHandler.DeserializeApiResponse(StaffApiUrl, HttpMethod.Post, memberRequest);
 
-            ViewData["SuccessMessage"] = "Register new account successfully.";
+            ViewData["SuccessMessage"] = "Registered new account successfully.";
             return View("Index");
         }
 

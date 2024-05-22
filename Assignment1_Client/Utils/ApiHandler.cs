@@ -42,11 +42,19 @@ namespace Assignment1_Client.Utils
                 }
                 else
                 {
-                    throw new Exception($"API request failed with status code: {response.StatusCode}");
+                    //throw new Exception($"API request failed with status code: {response.StatusCode}");
                 }
             }
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="apiUrl"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static async Task<T> DeserializeApiResponse<T>(string apiUrl, HttpMethod method)
         {
             using (var client = new HttpClient())

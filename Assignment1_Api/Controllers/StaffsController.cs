@@ -50,18 +50,18 @@ namespace Assignment1_Api.Controllers
         }
 
         // GET: api/Staffs/5
-        [HttpGet("/Name/{name}")]
-        public async Task<ActionResult<Staff>> GetStaff(String name)
+        [HttpGet("Name/{name}")]
+        public async Task<ActionResult<Staff>> GetStaff(string name)
         {
             if (_context.Staffs == null)
             {
                 return NotFound();
             }
-            var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.Name.Equals("name"));
+            var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.Name.Equals(name));
 
             if (staff == null)
             {
-                return NotFound();
+                return null;
             }
 
             return staff;
