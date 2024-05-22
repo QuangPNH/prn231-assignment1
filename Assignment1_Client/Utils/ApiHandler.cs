@@ -42,6 +42,7 @@ namespace Assignment1_Client.Utils
                 }
                 else
                 {
+                    return default;
                     //throw new Exception($"API request failed with status code: {response.StatusCode}");
                     return default;
                 }

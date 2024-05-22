@@ -58,8 +58,6 @@ namespace Assignment1_Client.Controllers
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true).Build();
 
-            String aaa = config["Credentials:Email"];
-
             Staff admin = new Staff
             {
                 Name = config["Credentials:Email"],
@@ -77,7 +75,7 @@ namespace Assignment1_Client.Controllers
             {
                 HttpContext.Session.SetInt32("USERID", account.StaffId);
                 HttpContext.Session.SetString("USERNAME", account.Name);
-                HttpContext.Session.SetString("ROLE", account.Role == 1 ? "Admin": "Customer");
+                HttpContext.Session.SetString("ROLE", account.Role == 1 || account.Name == "admin@estore.com" ? "Admin": "Customer");
                 if (account.Role == 1)
                     return RedirectToAction("Index", "Staffs");
                 else
