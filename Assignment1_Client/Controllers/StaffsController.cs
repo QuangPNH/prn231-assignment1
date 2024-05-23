@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 ﻿using Assignment1_Api.Models;
 using Assignment1_Client.Models;
+=======
+using Assignment1_Api.Models;
+>>>>>>> b26d209dea4d1f38d09129cdaf504b3c74640d7f
 using Assignment1_Client.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
@@ -78,7 +82,7 @@ namespace Assignment1_Client.Controllers
 
             return View(staff);
         }
-
+        [HttpPost]
         public async Task<IActionResult> Search(string keyword)
         {
             List<Staff> listMembers = await ApiHandler.DeserializeApiResponse<List<Staff>>(StaffApiUrl + "/Search/" + keyword, HttpMethod.Get);

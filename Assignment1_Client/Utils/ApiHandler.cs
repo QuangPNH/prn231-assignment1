@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace Assignment1_Client.Utils
 {
@@ -39,23 +39,17 @@ namespace Assignment1_Client.Utils
                     {
                         return default;
                     }
+                }else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return default;
                 }
                 else
                 {
-                    //throw new Exception($"API request failed with status code: {response.StatusCode}");
-                    return default;
+                    throw new Exception($"API request failed with status code: {response.StatusCode}");
                 }
             }
         }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="apiUrl"></param>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
+
         public static async Task<T> DeserializeApiResponse<T>(string apiUrl, HttpMethod method)
         {
             using (var client = new HttpClient())
@@ -89,6 +83,9 @@ namespace Assignment1_Client.Utils
                     {
                         return default;
                     }
+                }else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return default;
                 }
                 else
                 {

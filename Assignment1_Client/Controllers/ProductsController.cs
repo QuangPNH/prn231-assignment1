@@ -1,7 +1,9 @@
 ﻿using Assignment1_Api.Models;
+using Assignment1_Client.Models;
 using Assignment1_Client.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 
@@ -23,7 +25,7 @@ namespace Assignment1_Client.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string productName, decimal? unitPrice)
         {
             int? userId = HttpContext.Session.GetInt32("USERID");
 
@@ -40,9 +42,26 @@ namespace Assignment1_Client.Controllers
                 return RedirectToAction("Profile", "Staffs");
             }
 
-            List<Product> listProducts = await ApiHandler.DeserializeApiResponse<List<Product>>(ProductApiUrl, HttpMethod.Get);
+            List<Product> products = await ApiHandler.DeserializeApiResponse<List<Product>>(ProductApiUrl, HttpMethod.Get);
 
             ViewData["Categories"] = await ApiHandler.DeserializeApiResponse<List<Category>>(CategoryApiUrl, HttpMethod.Get);
+
+            if (!string.IsNullOrEmpty(productName))
+            {
+                products = products.Where(p => p.ProductName.Contains(productName)).ToList();
+            }
+
+            if (unitPrice.HasValue)
+            {
+                products = products.Where(p => p.UnitPrice == unitPrice.Value).ToList();
+            }
+
+            var model = new SearchViewModel
+            {
+                ProductName = productName,
+                UnitPrice = unitPrice,
+                Products = products.ToList()
+            };
 
             if (TempData != null)
             {
@@ -50,7 +69,7 @@ namespace Assignment1_Client.Controllers
                 ViewData["ErrorMessage"] = TempData["ErrorMessage"];
             }
 
-            return View(listProducts);
+            return View(model);
         }
 
         [HttpGet]
@@ -163,32 +182,29 @@ namespace Assignment1_Client.Controllers
         {
             int? userId = HttpContext.Session.GetInt32("USERID");
 
-            string Role = HttpContext.Session.GetString("USERNAME");
+            string Role = HttpContext.Session.GetString("ROLE");
 
             if (userId == null)
             {
                 TempData["ErrorMessage"] = "You must login to access this page.";
                 return RedirectToAction("Index", "Home");
             }
-            else if (Role != "admin@estore")
+            else if (Role != "Admin")
             {
                 TempData["ErrorMessage"] = "You don't have permission to access this page.";
-                return RedirectToAction("Profile", "Member");
+                return RedirectToAction("Profile", "Staffs");
             }
 
             Product product = await ApiHandler.DeserializeApiResponse<Product>(ProductApiUrl + "/" + id, HttpMethod.Get);
             if (product == null)
             {
-                TempData["ErrorMessage"] = "Flower Bouquet not found";
+                TempData["ErrorMessage"] = "Not found";
                 return RedirectToAction("Index");
             }
-            //if (flowerBouquet.FlowerBouquetStatus == 0)
-            //{
-            //    TempData["ErrorMessage"] = "Flower Bouquet is not available";
-            //    return RedirectToAction("Index");
-            //}
 
-            return View(product);
+            Product deleteProduct = await ApiHandler.DeserializeApiResponse<Product>(ProductApiUrl + "/" + id, HttpMethod.Delete);
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
