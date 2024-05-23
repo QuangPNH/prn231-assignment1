@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-﻿using Assignment1_Api.Models;
-using Assignment1_Client.Models;
-=======
+
 using Assignment1_Api.Models;
->>>>>>> b26d209dea4d1f38d09129cdaf504b3c74640d7f
 using Assignment1_Client.Utils;
+using Assignment1_Client.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
@@ -232,7 +229,14 @@ namespace Assignment1_Client.Controllers
             string name = HttpContext.Session.GetString("USERNAME");
             int userId = HttpContext.Session.GetInt32("USERID").Value;
             Staff staff = await ApiHandler.DeserializeApiResponse<Staff>(StaffApiUrl + "/" + userId, HttpMethod.Get);
-            StaffDTO staffDTO = new StaffDTO{
+
+            if (staff == null)
+            {
+                TempData["ErrorMessage"] = "You must login with admin in db to access this page.";
+                return RedirectToAction("Index", "Staffs");
+            }
+
+            StaffDTO staffDTO = new StaffDTO(){
                 Id = staff.StaffId,
                 Name = staff.Name
             };
@@ -245,7 +249,7 @@ namespace Assignment1_Client.Controllers
             else if (name != staff.Name)
             {
                 TempData["ErrorMessage"] = "You don't have permission to access this page.";
-                return RedirectToAction("Index", "Staff");
+                return RedirectToAction("Index", "Staffs");
             }
 
 
@@ -266,9 +270,22 @@ namespace Assignment1_Client.Controllers
 
             staffRequest.Id = userId.Value;
             Staff tempStaff = await ApiHandler.DeserializeApiResponse<Staff>(StaffApiUrl + "/" + staffRequest.Id, HttpMethod.Get);
+
+            Staff staffEditRequest = new Staff()
+            {
+                Name = staffRequest.Name,
+                StaffId = staffRequest.Id,
+                Password = tempStaff.Password,
+            };
+
             if (tempStaff.Password == staffRequest.OldPassword)
             {
-                await ApiHandler.DeserializeApiResponse(StaffApiUrl + "/" + staffRequest.Id, HttpMethod.Put, staffRequest);
+                if (staffRequest.Password != staffRequest.RePassword)
+                {
+                    TempData["ErrorMessage"] = "Your password and re-password don't match!";
+                    return RedirectToAction("EditProfile", TempData);
+                }
+                await ApiHandler.DeserializeApiResponse(StaffApiUrl + "/" + staffRequest.Id, HttpMethod.Put, staffEditRequest);
             }
             else
             {
@@ -276,11 +293,7 @@ namespace Assignment1_Client.Controllers
                 return RedirectToAction("EditProfile", TempData);
 
             }
-            if (staffRequest.Password != staffRequest.RePassword)
-            {
-                TempData["ErrorMessage"] = "Your password and re-password don't match!";
-                return RedirectToAction("EditProfile", TempData);
-            }
+            
 
             TempData["SuccessMessage"] = "Edit profile information successfully.";
 

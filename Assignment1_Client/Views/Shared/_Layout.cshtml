@@ -35,25 +35,28 @@
                         @if (Role == "Admin")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Index">Manage Staffs</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Manage Orders</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Manage Products</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Manage Categories</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Index">Manage Staffs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Report</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Profile">My Profile</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Profile">My Profile</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="OrderHistory">Manage Order</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="OrderHistory">Order History</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Report</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Staffs" asp-action="Profile">My Profile</a>
                             </li>
                         }
                     </ul>
