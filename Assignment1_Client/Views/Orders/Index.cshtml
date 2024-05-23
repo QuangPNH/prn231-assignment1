@@ -3,6 +3,21 @@
 @{
     ViewData["Title"] = "Index";
     String Role = Context.Session.GetString("ROLE");
+    int? userId = Context.Session.GetInt32("USERID");
+
+
+    var currentDate = DateTime.Now;
+    // Calculate the date for one day before the current date
+    var oneDayBefore = currentDate.AddDays(-1);
+    var startOfDay = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 7, 0, 0);
+    var startOfMonth = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 7, 0, 0);
+    var oneMonthBefore = currentDate.AddMonths(-1);
+    // Format dates for the datetime-local input fields
+    var currentDateString = currentDate.ToString("yyyy-MM-ddTHH:mm");
+    var oneDayBeforeString = oneDayBefore.ToString("yyyy-MM-ddTHH:mm");
+    var startOfDayString = startOfDay.ToString("yyyy-MM-ddTHH:mm");
+    var startOfMonthString = startOfMonth.ToString("yyyy-MM-ddTHH:mm");
+    var oneMonthBeforeString = oneMonthBefore.ToString("yyyy-MM-ddTHH:mm");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -48,7 +63,26 @@
         </div>
     </form>
 }
-
+<div id="singleDateContainer" class="row mb-3">
+    <div class="col-5" id="orderDateto">
+        <div class="form-group mb-2">
+            <label for="orderDate" class="control-label">Order Date</label>
+            <input id="orderDate" name="orderDate" type="datetime-local" class="form-control" value="@currentDateString" />
+        </div>
+    </div>
+    <div class="col-5" id="endorderDateFrom">
+        <div class="form-group mb-2">
+            <label for="endorderDateFrom" class="control-label"> From</label>
+            <input id="From" name="To" type="datetime-local" class="form-control" value="@currentDateString" />
+        </div>
+    </div>
+    <div class="col-5" id="endorderDateTo">
+        <div class="form-group mb-2">
+            <label for="endorderDateTo" class="control-label"> To</label>
+            <input id="To" name="To" type="datetime-local" class="form-control" value="@currentDateString" />
+        </div>
+    </div>
+</div>
 @if (Model.Count() == 0)
 {
     <div>No orders found</div>
@@ -99,3 +133,157 @@
         </tbody>
     </table>
 }
+
+<script>
+    $(document).ready(function () {
+        $('#orderDate').change(function () {
+            var orderDatesort = $('#orderDate').val();
+            loadData(orderDatesort);
+        });
+        $('#From', '#To').change(function () {
+            var endorderDateFrom = $('#From').val();
+            var endorderDate = $('#To').val();
+            console.log(endorderDateFrom + '' + endorderDate);
+            // // if (new Date(startDate) > new Date(endDate)) {
+            // //     alert("End Date cannot be earlier than Start Date.");
+            // //     $('#startDate').val('@oneMonthBeforeString');
+            // //     $('#endDate').val('@currentDateString');
+            // //     event.preventDefault();
+            // // }
+            loadDataRange(endorderDateFrom, endorderDate);
+        });
+        function loadData(orderDatesort) {
+            $.ajax({
+                url: 'https://localhost:5267/api/Order/date',
+                type: 'GET',
+                data: { orderDate: orderDatesort },
+                success: function (data) {
+                    var tableBody = $('#orderTableBody');
+                    tableBody.empty(); // Clear existing data
+                    data.forEach(function (item) {
+
+                        if (@Role === 1 || item.staffId === @userId) {
+                            console.log(item.staffId);
+                            var formattedOrderDate = formatDate(item.orderDate);
+
+                            var row = '<tr>' +
+                                '<td>' + item.orderId + '</td>' +
+                                '<td>' + formattedOrderDate + '</td>';
+
+                            if (@Role == 1) {
+                                getStaffName(item.staffId, function (staffName) {
+                                    row += '<td>' + staffName + '</td>';
+                                    row += '<td><a class="btn btn-primary" href="/Order/Details/' + item.orderId + '">Details</a></td>' +
+                                        '</tr>';
+                                    tableBody.append(row);
+                                });
+                            } else {
+                                row += '<td><a class="btn btn-primary" href="/Order/Details/' + item.orderId + '">Details</a></td>' +
+                                    '</tr>';
+                                tableBody.append(row);
+                            }
+                        }
+                    });
+                    console.log(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    $('#orderTableBody').html('<tr><td colspan="3">No Order found.</td></tr>');
+                }
+            });
+        }
+        function loadDataRange(endorderDateFrom, endorderDate) {
+            $.ajax({
+                url: 'https://localhost:5267/api/Order/date-range',
+                type: 'GET',
+                data: { startDate: endorderDateFrom, endDate: endorderDate},
+                success: function (data) {
+                    var tableBody = $('#orderTableBody');
+                    tableBody.empty();
+                    data.forEach(function (item) {
+
+                        if (@Role === 1 || item.staffId === @userId) {
+                            console.log(item.staffId);
+                            var formattedOrderDate = formatDate(item.orderDate);
+
+                            var row = '<tr>' +
+                                '<td>' + item.orderId + '</td>' +
+                                '<td>' + formattedOrderDate + '</td>';
+
+                            if (@Role == 1) {
+                                getStaffName(item.staffId, function (staffName) {
+                                    row += '<td>' + staffName + '</td>';
+                                    row += '<td><a class="btn btn-primary" href="/Order/Details/' + item.orderId + '">Details</a></td>' +
+                                        '</tr>';
+                                    tableBody.append(row);
+                                });
+                            } else {
+                                row += '<td><a class="btn btn-primary" href="/Order/Details/' + item.orderId + '">Details</a></td>' +
+                                    '</tr>';
+                                tableBody.append(row);
+                            }
+                        }
+                    });
+                    console.log(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    $('#orderTableBody').html('<tr><td colspan="3">No Order found.</td></tr>');
+                }
+            });
+        }
+        $('#searchMode').change(function () {
+            if ($(this).val() === 'single') {
+                // $('#singleDateContainer').show();
+                 $('#endorderDateFrom').hide();
+                 $('#orderDateto').show();
+                 $('#endorderDateTo').hide();
+
+
+            } else {
+                 $('#endorderDateTo').show();
+                 $('#endorderDateFrom').show();
+                 $('#orderDateto').hide();
+
+            }
+        });
+        function formatDate(dateString) {
+            var date = new Date(dateString);
+
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+
+            var hour = date.getHours();
+            var minute = date.getMinutes();
+            var second = date.getSeconds();
+
+            var ampm = hour >= 12 ? 'CH' : 'SA';
+            hour = hour % 12;
+            hour = hour ? hour : 12; // 0 giờ sẽ được chuyển thành 12 giờ
+
+            // Thêm số 0 vào trước nếu cần thiết
+            day = day < 10 ? '0' + day : day;
+            month = month < 10 ? '0' + month : month;
+            hour = hour < 10 ? '0' + hour : hour;
+            minute = minute < 10 ? '0' + minute : minute;
+            second = second < 10 ? '0' + second : second;
+
+            return day + '/' + month + '/' + year + ' ' + hour + ':' + minute + ':' + second + ' ' + ampm;
+        }
+
+        function getStaffName(staffId, callback) {
+            $.ajax({
+                url: 'https://localhost:5267/api/Staff/' + staffId,
+                type: 'GET',
+                success: function (data) {
+                    callback(data.name);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                    callback('N/A'); // Display "N/A" if there's an error
+                }
+            });
+        }
+    });
+</script>
