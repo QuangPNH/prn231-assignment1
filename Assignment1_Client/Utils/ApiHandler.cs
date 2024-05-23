@@ -34,7 +34,7 @@ namespace Assignment1_Client.Utils
                         };
                         T result = JsonSerializer.Deserialize<T>(responseData, options);
                         return result;
-                    }
+                    }   
                     else
                     {
                         return default;

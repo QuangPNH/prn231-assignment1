@@ -1,4 +1,4 @@
-﻿using Assignment1_Api.Models;
+﻿ using Assignment1_Api.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Assignment1_Api.DTO

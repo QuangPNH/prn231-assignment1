@@ -1,4 +1,5 @@
 ﻿using Assignment1_Api.Models;
+using Assignment1_Client.Models;
 using Assignment1_Client.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
@@ -63,12 +64,12 @@ namespace Assignment1_Client.Controllers
 
             Staff staff = await ApiHandler.DeserializeApiResponse<Staff>(StaffApiUrl + "/" + id, HttpMethod.Get);
 
-            if(staff == null)
+            if (staff == null)
             {
                 TempData["ErrorMessage"] = "No staff exist";
                 return RedirectToAction("Profile", "Staffs");
             }
-            
+
             if (TempData != null)
             {
                 ViewData["SuccessMessage"] = TempData["SuccessMessage"];
@@ -95,7 +96,7 @@ namespace Assignment1_Client.Controllers
                 TempData["ErrorMessage"] = "You must login to access this page.";
                 return RedirectToAction("Index", "Home");
             }
-            else if(Role != "Admin")
+            else if (Role != "Admin")
             {
                 TempData["ErrorMessage"] = "You don't have permission to access this page.";
                 return RedirectToAction("Profile", "Staff");
@@ -227,6 +228,10 @@ namespace Assignment1_Client.Controllers
             string name = HttpContext.Session.GetString("USERNAME");
             int userId = HttpContext.Session.GetInt32("USERID").Value;
             Staff staff = await ApiHandler.DeserializeApiResponse<Staff>(StaffApiUrl + "/" + userId, HttpMethod.Get);
+            StaffDTO staffDTO = new StaffDTO{
+                Id = staff.StaffId,
+                Name = staff.Name
+            };
 
             if (userId == null)
             {
@@ -246,22 +251,37 @@ namespace Assignment1_Client.Controllers
                 ViewData["ErrorMessage"] = TempData["ErrorMessage"];
             }
 
-            return View(staff);
+            return View(staffDTO);
         }
         [HttpPost]
-        public async Task<IActionResult> EditProfile(Staff staffRequest)
+        public async Task<IActionResult> EditProfile(StaffDTO staffRequest)
         {
             int? userId = HttpContext.Session.GetInt32("USERID");
             if (userId == null)
                 return RedirectToAction("Index", "Home");
 
-            staffRequest.StaffId = userId.Value;
-            await ApiHandler.DeserializeApiResponse(StaffApiUrl + "/" + staffRequest.StaffId, HttpMethod.Put, staffRequest);
+            staffRequest.Id = userId.Value;
+            Staff tempStaff = await ApiHandler.DeserializeApiResponse<Staff>(StaffApiUrl + "/" + staffRequest.Id, HttpMethod.Get);
+            if (tempStaff.Password == staffRequest.OldPassword)
+            {
+                await ApiHandler.DeserializeApiResponse(StaffApiUrl + "/" + staffRequest.Id, HttpMethod.Put, staffRequest);
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Incorrect old password!";
+                return RedirectToAction("EditProfile", TempData);
+
+            }
+            if (staffRequest.Password != staffRequest.RePassword)
+            {
+                TempData["ErrorMessage"] = "Your password and re-password don't match!";
+                return RedirectToAction("EditProfile", TempData);
+            }
 
             TempData["SuccessMessage"] = "Edit profile information successfully.";
 
             return RedirectToAction("Profile", TempData);
         }
-    
-}
+
+    }
 }
