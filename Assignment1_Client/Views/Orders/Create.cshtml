@@ -42,6 +42,12 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
+                            <label asp-for="Price" class="control-label mb-1">Price</label>
+                            <input asp-for="Price" value="1" min="1" type="number" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
                             <label class="control-label"></label>
                             <input type="submit" value="Add" class="btn btn-warning d-block" />
                         </div>
@@ -72,13 +78,13 @@
                     </tr>
                     @foreach (var cartitem in OrderItems)
                     {
-                        var totalMoney = cartitem.Quantity * cartitem.Product.UnitPrice;
+                        var totalMoney = cartitem.Quantity * cartitem.Price;
                         total += totalMoney;
 
                         <tr>
                             <td>@(stt++)</td>
                             <td>@cartitem.Product.ProductName</td>
-                            <td>@(cartitem.Product.UnitPrice.ToString("n0"))</td>
+                            <td>@(cartitem.Price.ToString("n0"))</td>
                             <td>@cartitem.Quantity</td>
                             <td>@(totalMoney.ToString("n0"))</td>
                             <td>

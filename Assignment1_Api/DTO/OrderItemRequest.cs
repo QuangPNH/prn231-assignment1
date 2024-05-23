@@ -9,5 +9,7 @@ namespace Assignment1_Api.DTO
         public Product Product { get; set; }
         [Required]
         public int Quantity { get; set; }
+        public int Price { get; set; }
+
     }
 }

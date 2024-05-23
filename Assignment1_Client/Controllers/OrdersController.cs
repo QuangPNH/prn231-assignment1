@@ -309,7 +309,7 @@ namespace Assignment1_Client.Controllers
                     OrderId = orderSaved.OrderId,
                     ProductId = itemRequest.Product.ProductId,
                     Quantity = itemRequest.Quantity,
-                    UnitPrice = itemRequest.Product.UnitPrice,
+                    UnitPrice = itemRequest.Price,
                 };
                 OrderDetail od = await ApiHandler.DeserializeApiResponse<OrderDetail>(OrderDetailApiUrl,HttpMethod.Post, orderDetail);
             }
@@ -348,7 +348,7 @@ namespace Assignment1_Client.Controllers
             }
             else
             {
-                listItemsRequest.Add(new OrderItemRequest() { Quantity = orderRequest.Quantity, Product = product });
+                listItemsRequest.Add(new OrderItemRequest() { Quantity = orderRequest.Quantity, Product = product ,Price =orderRequest.Price });
             }
 
             SaveOrderItemsSession(listItemsRequest);
